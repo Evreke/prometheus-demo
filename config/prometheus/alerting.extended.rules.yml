@@ -1,0 +1,53 @@
+groups:
+  - name: DBAvailability
+    rules:
+      - alert: PostgreInstanceDown
+        expr: pg_up{job="pg_exporter"} == 0
+        for: 10s
+        labels:
+          severity: minor
+          team: "sales"
+          service: "sales_service"
+        annotations:
+          summary: "Postgre instance down"
+          description: "{{$labels.instance}} was not responding for the past 10s"
+
+      - alert: PostgreInstanceDown
+        expr: pg_up{job="pg_exporter_two"} == 0
+        for: 10s
+        labels:
+          severity: minor
+          team: "account"
+          service: "account_service"
+        annotations:
+          summary: "Postgre instance down"
+          description: "{{$labels.instance}} was not responding for the past 10s"
+
+      - alert: HalfOfDatabasesDown
+        expr: avg(pg_up) <= 0.5
+        for: 10s
+        labels:
+          severity: major
+          team: "backend"
+          cluster: "storage"
+        annotations:
+          summary: "50% or more of storages not available"
+          description: >-
+            Listed instances was not responding for the past 10s
+            {{ range query "pg_up == 0"}}
+              - {{.Labels.instance}}
+            {{ end }}
+
+      - alert: AllDatabasesDown
+        expr: avg(pg_up) == 0
+        for: 10s
+        labels:
+          severity: critical
+          cluster: "storage"
+        annotations:
+          summary: "storage cluster unavailable"
+          description: >-
+            Listed instances was not responding for the past 10s
+            {{ range query "pg_up == 0"}}
+              - {{.Labels.instance}}
+            {{ end }}

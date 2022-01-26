@@ -1,0 +1,49 @@
+global:
+
+route:
+  receiver: backend-slack
+  repeat_interval: 2m
+  group_wait: 30s
+  group_interval: 1m
+  group_by: [team]
+  routes:
+    - matchers: [team=sales]
+      receiver: sales-slack
+    - matchers: [team=account]
+      receiver: account-slack
+    - matchers: [team=backend,severity=critical|major]
+      receiver: backend-slack
+
+receivers:
+  - name: backend-slack
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/...' # Укажи свой webhook
+        channel: '#alerting'
+        text: >-
+          {{ range .Alerts }}
+           *Alert:* {{ .Annotations.summary }} - {{ .Labels.severity }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+
+  - name: sales-slack
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/...' # Укажи свой webhook
+        channel: '#sales_alerting'
+        text: >-
+          {{ range .Alerts }}
+           {{ if eq (index .Labels "severity") "critical"}}*Info:*{{else}}*Alert:*{{end}} {{ .Annotations.summary }} - {{ .Labels.severity }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+
+  - name: account-slack
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/...' # Укажи свой webhook
+        channel: '#account_alerting'
+        text: >-
+          {{ range .Alerts }}
+           {{ if eq (index .Labels "severity") "critical"}}*Info:*{{else}}*Alert:*{{end}} {{ .Annotations.summary }} - {{ .Labels.severity }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }} # TODO вынести в шаблоны
+
+#    email_configs:
+#      - to: 'example@example.com' # Адрес на который alertmanager будет отправлять сообщения
