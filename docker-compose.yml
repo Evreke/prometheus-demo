@@ -74,8 +74,24 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.2'
-          memory: 500M
+          cpus: '0.5'
+          memory: 2G
+    networks:
+      - postgres
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.24.1
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
     networks:
       - postgres
 
