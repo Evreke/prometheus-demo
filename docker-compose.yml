@@ -190,6 +190,18 @@ services:
       - postgres
       - prometheus
 
+  grafana:
+    image: grafana/grafana-oss:8.2.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config/grafana/custom.ini:/etc/grafana/custom.ini:ro
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    user: '104'
+    networks:
+      - prometheus
+
 networks:
   postgres:
     driver: bridge
