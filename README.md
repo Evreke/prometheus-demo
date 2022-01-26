@@ -1,11 +1,3 @@
-# Как пользоваться репозиторием
-
-Вся функциональность разбита по веткам.
-
-1. [Добавление Prometheus](https://github.com/Evreke/prometheus-demo/tree/feature/add-prometheus)
-2. [Добавление Alertmanager](https://github.com/Evreke/prometheus-demo/tree/feature/add-alertmanager)
-2. [Добавление Grafana](https://github.com/Evreke/prometheus-demo/tree/feature/add-grafana)
-
 # Prometheus
 
 Собирает метрики в определённом формате с хостов.
