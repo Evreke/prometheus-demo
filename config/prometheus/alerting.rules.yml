@@ -1,0 +1,12 @@
+groups:
+  - name: DBAvailability
+    rules:
+      - alert: PostgreInstanceDown
+        expr: pg_up{job="pg_exporter"} == 0
+        for: 10s
+        labels:
+          severity: critical
+          service: "PostgreSQL"
+        annotations:
+          summary: "Postgre instance down"
+          description: "{{$labels.instance}} was not responding for the past 1m"

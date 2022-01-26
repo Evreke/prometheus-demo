@@ -1,4 +1,5 @@
 .idea
 pgadmin
 pgdata
+persistent/**
 *.iml
