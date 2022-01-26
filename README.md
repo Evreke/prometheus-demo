@@ -2,19 +2,23 @@
 
 Вся функциональность разбита по веткам.
 
-1. [Добавление Prometheus](https://github.com/Evreke/prometheus-hello/tree/feature/prometheus-added)
-2. [Добавление Alertmanager](https://github.com/Evreke/prometheus-hello/tree/feature/alertmanager-added)
+1. [Добавление Prometheus](https://github.com/Evreke/prometheus-demo/tree/feature/add-prometheus)
+2. [Добавление Alertmanager](https://github.com/Evreke/prometheus-demo/tree/feature/add-alertmanager)
+2. [Добавление Grafana](https://github.com/Evreke/prometheus-demo/tree/feature/add-grafana)
 
 # Prometheus
 
+Собирает метрики в определённом формате с хостов.
+
 Файл prometheus.yml содержит простую конфигурацию для Prometheus.
 
-| Параметр        | Назначение                                                                                                                  |
-|-----------------|-----------------------------------------------------------------------------------------------------------------------------|
-| scrape_interval | Как часто прометей будет забирать (скрапить) метрики с хостов                                                               |
-| scrape_timeout  | Если скрапинг не завершится за время заданное в этом параметре, тогда случится timeout                                      |
-| external_labels | Список меток и значений присваемых временным рядам при взаимодействии с Prometheus (remote storage, alertmanager, federation) |
-| scrape_configs  | Конфигурация задач на сбор метрик с экспортеров или с помощью федерации                                                     |
+| Параметр            | Назначение                                                                                                                    |
+|---------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| scrape_interval     | Как часто прометей будет забирать (скрапить) метрики с хостов                                                                 |
+| scrape_timeout      | Если скрапинг не завершится за время заданное в этом параметре, тогда случится timeout                                        |
+| external_labels     | Список меток и значений присваемых временным рядам при взаимодействии с Prometheus (remote storage, alertmanager, federation) |
+| evaluation_interval | Интервал вычисления alert\record rules                                                                                        |
+| scrape_configs      | Конфигурация задач на сбор метрик с экспортеров или с помощью федерации                                                       |
 
 В данной конфигурации Prometheus каждые 15 секунд будет собирать собственные метрики и метрики postgres отдаваемые через postgres_exporter
 
@@ -22,13 +26,11 @@
 
 1. Запусти сервисы командой docker-compose up -d
 2. Подключись к веб-интерфейсу прометея по адресу http://localhost:9090/graph
-3. Найди метрики с помощью запроса pg_stat_user_tables_n_live_tup{relname="first_table"}. Метрика должна показать, что таблица first_table содержит 100k строк.
-4. Запусти скрипт delete.sh, подожди 15 секунд и проверь метрики ещё раз. Шкала должна устремиться вниз и показывать, что в таблице 0 записей.
-5. Запусти скрипт create.sh и шкала покажет, что в таблицу добавлено 100k записей.
+3. Найди метрику pg_stat_user_tables_n_live_tup{relname="first_table"}. Значение будет 100000.
+4. Запусти скрипт delete.sh, подожди 15 секунд и проверь метрики ещё раз. Значение должно равняться 0.
+5. Запусти скрипт create.sh, подожди 15 секунд и увидишь, что значение метрики снова 100000.
 
 # Alertmanager
-
-Принимает решение о том куда отправить уведомление о входящем от prometheus предупреждении
 
 * Фильтрует входящие от prometheus предупреждения по заданным в конфигурации правилам
 * Принимает решение куда отправить сообщение
@@ -37,14 +39,16 @@
 ## Базовая конфигурация - alerting.rules.yml, alertmanager.yml
 
 Как работает:
-1. В alerting.rules.yml содержатся тривиальные правила для отслеживания состояния postgres сервиса.
-   При недоступности сервиса в течение 10 секунд prometheus отправит предупреждение в alertmanger
+1. alerting.rules.yml содержит простое правило для отслеживания состояния postgres сервиса.
+   При недоступности сервиса в течение 10 секунд prometheus отправит предупреждение в alertmanger.
 
 Как проверить:
 * Запусти все сервисы, а затем погаси сервис postgres
 * Проверить админ интерфейс alertmanager
 
 ## Расширенная конфигурация - alerting.extended.rules.yml, alertmanager.yml
+
+С отправкой в Slack
 
 Как работает:
 1. В alerting.extended.rules.yml находятся правила:
